@@ -17,24 +17,37 @@ import axios from 'axios';
 import { styles } from './style';
 import {
     LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    ContributionGraph,
-    StackedBarChart
   } from "react-native-chart-kit";
 
 const Home = () => {
 
   const [coins, setCoins] = useState([]);
+  const [masterData, setmasterData] = useState([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=true&price_change_percentage=14d')
-    .then(res => {setCoins(res.data)})  
+    axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=40&page=1&sparkline=true&price_change_percentage=14d')
+    .then(res => {
+      setCoins(res.data);
+      setmasterData(res.data)
+    })  
     .catch(error => console.log(error))
   }, []);
 
-  const data = coins;
+  const searchFilter = text => {
+    if (text) {
+      const newData = masterData.filter((item) => {
+        const itemData = item.name ? item.name : '';
+        const textData = text;
+        return itemData.indexOf(textData) > -1;
+      });
+      setCoins(newData);
+      setSearch(text);
+    } else {
+      setCoins(masterData);
+      setSearch(text);
+    }
+  }
 
   const renderCategoryItem = ({item}) => {
     return (
@@ -73,7 +86,7 @@ const Home = () => {
                 width={100}
                 height={60}
                 chartConfig={{
-                    color: () => 'rgba(11,156,49,0.8)',
+                    color: () => (item.price_change_percentage_24h > 0 ) ? '#49976A' : 'red',
                     backgroundGradientFrom: "#050a11",
                     backgroundGradientTo: "#050a11",              
                 }}
@@ -85,7 +98,7 @@ const Home = () => {
           </View>
 
           <View style={styles.cryptoItemPriceWrapper}>
-                <Text style={styles.cryptoItemPrice}>${item.current_price.toLocaleString('en-US')}</Text>
+                <Text style={styles.cryptoItemPrice}>${item.current_price.toFixed(2)}</Text>
                 <View style={styles.cryptoItemPercentageWrapper} >
                     <Text style={{color: (item.price_change_percentage_24h > 0 ) ? 'green' : 'red'}} >{item.price_change_percentage_24h.toFixed(2)} %</Text>
                     <Feather name='arrow-up-right' size={13} style={{
@@ -124,12 +137,12 @@ const Home = () => {
         {/* Search */}
         <View style={styles.searchWrapper}>
             <Feather name='search' size={17} color={'#feffff'} />
-            <TextInput placeholder={'Search...'} placeholderTextColor={'#99A4AE'} style={styles.searchInput} />
+            <TextInput value={search} placeholder={'Search...'} placeholderTextColor={'#99A4AE'} style={styles.searchInput} onChangeText={(text) => searchFilter(text)} />
             <Ionicons name='filter' size={17} color={'#feffff'} />
         </View>
         
       <FlatList 
-        data={data}
+        data={coins}
         renderItem={renderCategoryItem}
         keyExtractor={item => item.id}
         showsHorizontalScrollIndicator={false}

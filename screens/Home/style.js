@@ -4,6 +4,7 @@ export const styles = StyleSheet.create({
     container: {
         paddingHorizontal: 20,
         backgroundColor: '#050a11',
+        marginBottom: 50
     },
     headerWrapper: {
         flexDirection: 'row',
@@ -14,10 +15,10 @@ export const styles = StyleSheet.create({
     profileImage: {
         width: 40,
         height: 40,
-        borderRadius: 10,
+        borderRadius: 10
     },
     balanceWrapper: {
-        paddingVertical: 30,
+        paddingVertical: 30
     },
     balanceTitle: {
         color: '#99A4AE',
